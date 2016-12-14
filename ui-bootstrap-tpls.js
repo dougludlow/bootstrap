@@ -1063,11 +1063,6 @@ angular.module('ui.bootstrap.dateparser', [])
     return f && f.apply || null;
   };
 
-  this.getFormatter = function (key) {
-    var f = getFormatCodeToRegex(key);
-    return f && f.formatter || null;
-  };
-
   this.overrideParser = function (key, parser) {
     var f = getFormatCodeToRegex(key);
     if (f && angular.isFunction(parser)) {
@@ -1075,13 +1070,6 @@ angular.module('ui.bootstrap.dateparser', [])
       f.apply = parser;
     }
   }.bind(this);
-
-  this.overrideFormatter = function (key, formatter) {
-    var f = getFormatCodeToRegex(key);
-    if (f && angular.isFunction(parser)) {
-      f.formatter = formatter;
-    }
-  };
 
   function createParser(format) {
     var map = [], regex = format.split('');
