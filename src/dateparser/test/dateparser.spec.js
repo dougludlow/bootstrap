@@ -797,7 +797,11 @@ describe('date parser', function() {
       this.year = +value + (+value > 30 ? 1900 : 2000);
     };
 
-    it('overrides the parser', function() {
+    it('should get the current parser', function() {
+      expect(dateParser.getParser('yy')).toBeTruthy();
+    });
+
+    it('should override the parser', function() {
       dateParser.overrideParser('yy', twoDigitYearParser);
       expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(1968);
       expect(dateParser.parse('67', 'yy').getFullYear()).toEqual(1967);
@@ -805,19 +809,10 @@ describe('date parser', function() {
       expect(dateParser.parse('30', 'yy').getFullYear()).toEqual(2030);
     });
 
-    it('clears cached parsers when overridden', function() {
-      dateParser.parse('68', 'yy');
-      expect(Object.keys(dateParser.parsers).length).toBe(1);
-      dateParser.overrideParser('yy', twoDigitYearParser);
-      expect(Object.keys(dateParser.parsers).length).toBe(0);
-    });
-
-    it('can set a parser back to the original', function() {
-      var original = dateParser.getParser('yy');
+    it('should clear cached parsers', function() {
+      expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(2068);
       dateParser.overrideParser('yy', twoDigitYearParser);
       expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(1968);
-      dateParser.overrideParser('yy', original);
-      expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(2068);
     });
   });
 });
