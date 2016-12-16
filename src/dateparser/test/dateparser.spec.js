@@ -790,27 +790,34 @@ describe('date parser', function() {
         expect(toWestDate.getTime() - toEastDate.getTime()).toEqual(1000 * 60 * 60 * 12);
       });
     });
+  });
 
-    describe('overrideParser', function() {
-      it('overrides the parser', function() {
-        var original = dateParser.getParser('yy');
-        try {
-          expect(dateParser.parse('67', 'yy').getFullYear()).toEqual(2067);
-          expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(2068);
+  describe('overrideParser', function() {
+    var twoDigitYearParser = function (value) {
+      this.year = +value + (+value > 30 ? 1900 : 2000);
+    };
 
-          dateParser.overrideParser('yy', function (value) {
-              this.year = +value + (+value > 30 ? 1900 : 2000);
-          });
+    it('overrides the parser', function() {
+      dateParser.overrideParser('yy', twoDigitYearParser);
+      expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(1968);
+      expect(dateParser.parse('67', 'yy').getFullYear()).toEqual(1967);
+      expect(dateParser.parse('31', 'yy').getFullYear()).toEqual(1931);
+      expect(dateParser.parse('30', 'yy').getFullYear()).toEqual(2030);
+    });
 
-          expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(1968);
-          expect(dateParser.parse('67', 'yy').getFullYear()).toEqual(1967);
-          expect(dateParser.parse('31', 'yy').getFullYear()).toEqual(1931);
-          expect(dateParser.parse('30', 'yy').getFullYear()).toEqual(2030);
-        }
-        finally {
-          dateParser.overrideParser('yy', original);
-        }
-      });
+    it('clears cached parsers when overridden', function() {
+      dateParser.parse('68', 'yy');
+      expect(Object.keys(dateParser.parsers).length).toBe(1);
+      dateParser.overrideParser('yy', twoDigitYearParser);
+      expect(Object.keys(dateParser.parsers).length).toBe(0);
+    });
+
+    it('can set a parser back to the original', function() {
+      var original = dateParser.getParser('yy');
+      dateParser.overrideParser('yy', twoDigitYearParser);
+      expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(1968);
+      dateParser.overrideParser('yy', original);
+      expect(dateParser.parse('68', 'yy').getFullYear()).toEqual(2068);
     });
   });
 });
